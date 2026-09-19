@@ -12,9 +12,6 @@ import ProductCard from "../ProductCard";
 import type { Product } from "../../../types";
 
 const CARD_GAP = 10;
-const CARD_HEIGHT = 340;
-
-const SWIPER_MODULES = [Pagination, Grid];
 
 const PAGINATION_CONFIG = { clickable: true };
 
@@ -47,12 +44,14 @@ interface ProductCategoryCarouselProps {
   categoryTitle: string;
   categories: Product["category"][];
   rows?: number;
+  cardHeight?: number;
 }
 
 function ProductCategoryCarousel({
   categoryTitle,
   categories,
   rows = 1,
+  cardHeight = 340,
 }: ProductCategoryCarouselProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,7 +131,7 @@ function ProductCategoryCarousel({
         }}
       >
         <Swiper
-          modules={SWIPER_MODULES}
+          modules={[Pagination, Grid]}
           spaceBetween={CARD_GAP}
           pagination={PAGINATION_CONFIG}
           breakpoints={breakpoints}
@@ -141,7 +140,7 @@ function ProductCategoryCarousel({
           {products.map((product) => (
             <SwiperSlide
               key={product.id}
-              style={{ height: rows > 1 ? CARD_HEIGHT : "auto" }}
+              style={{ height: rows > 1 ? cardHeight : "auto" }}
             >
               <Box
                 sx={{
