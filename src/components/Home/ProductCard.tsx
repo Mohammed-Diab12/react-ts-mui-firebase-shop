@@ -34,7 +34,7 @@ function ProductCard({
         display: "flex",
         flexDirection: isHorizontal ? "row" : "column",
         alignItems: isHorizontal ? "center" : "stretch",
-        backgroundColor: "background.default",
+        backgroundColor: "background.paper",
         textDecoration: "none",
         color: "inherit",
         p: isHorizontal ? 1 : 0,
@@ -87,7 +87,12 @@ function ProductCard({
           "&:last-child": { pb: isHorizontal ? 0 : undefined },
         }}
       >
-        <Typography variant="body2">{title}</Typography>
+        <Typography
+          variant="body2"
+          sx={{ wordBreak: "break-word" }}
+        >
+          {title}
+        </Typography>
 
         <Box sx={{ display: "flex", gap: 1, mt: isHorizontal ? 0.5 : 1.5 }}>
           <Typography

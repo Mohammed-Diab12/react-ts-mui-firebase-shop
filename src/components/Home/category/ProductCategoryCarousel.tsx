@@ -1,45 +1,63 @@
-import { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  Container,
-  Divider,
-} from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
+
+import { Box, Typography, CircularProgress } from "@mui/material";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
+import { Pagination, Grid } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import "swiper/css/grid";
+
 import { getProductsByCategories } from "../../../services/productService";
 import ProductCard from "../ProductCard";
 import type { Product } from "../../../types";
 
 const CARD_GAP = 10;
 
-const SWIPER_MODULES = [Pagination];
-
-const CAROUSEL_BREAKPOINTS = {
-  0: { slidesPerView: 2, slidesPerGroup: 2 },
-  600: { slidesPerView: 3, slidesPerGroup: 3 },
-  900: { slidesPerView: 4, slidesPerGroup: 4 },
-
-  1200: { slidesPerView: 5, slidesPerGroup: 5 },
-};
-
 const PAGINATION_CONFIG = { clickable: true };
+
+function getCarouselBreakpoints(rows: number) {
+  return {
+    0: {
+      slidesPerView: 2,
+      slidesPerGroup: 2,
+      grid: { rows, fill: "row" as const },
+    },
+    600: {
+      slidesPerView: 3,
+      slidesPerGroup: 3,
+      grid: { rows, fill: "row" as const },
+    },
+    900: {
+      slidesPerView: 4,
+      slidesPerGroup: 4,
+      grid: { rows, fill: "row" as const },
+    },
+    1200: {
+      slidesPerView: 5,
+      slidesPerGroup: 5,
+      grid: { rows, fill: "row" as const },
+    },
+  };
+}
 
 interface ProductCategoryCarouselProps {
   categoryTitle: string;
   categories: Product["category"][];
+  rows?: number;
+  cardHeight?: number;
 }
 
 function ProductCategoryCarousel({
   categoryTitle,
   categories,
+  rows = 1,
+  cardHeight = 340,
 }: ProductCategoryCarouselProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const breakpoints = useMemo(() => getCarouselBreakpoints(rows), [rows]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -83,7 +101,7 @@ function ProductCategoryCarousel({
   }
 
   return (
-    <Container maxWidth="lg">
+    <Box>
       {/* Title */}
       <Box sx={{ mb: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -98,7 +116,6 @@ function ProductCategoryCarousel({
         aria-label={`${categoryTitle} products`}
         sx={{
           mt: 5,
-
           pb: 4,
           "& .swiper-pagination-bullet": {
             backgroundColor: "content.main",
@@ -114,13 +131,17 @@ function ProductCategoryCarousel({
         }}
       >
         <Swiper
-          modules={SWIPER_MODULES}
+          modules={[Pagination, Grid]}
           spaceBetween={CARD_GAP}
           pagination={PAGINATION_CONFIG}
-          breakpoints={CAROUSEL_BREAKPOINTS}
+          breakpoints={breakpoints}
+          grid={{ rows, fill: "row" }}
         >
-          {products.map((product, index) => (
-            <SwiperSlide key={product.id} style={{ height: "auto" }}>
+          {products.map((product) => (
+            <SwiperSlide
+              key={product.id}
+              style={{ height: rows > 1 ? cardHeight : "auto" }}
+            >
               <Box
                 sx={{
                   display: "flex",
@@ -135,20 +156,12 @@ function ProductCategoryCarousel({
                   price={product.price}
                   discountPercentage={product.discountPercentage}
                 />
-
-                {index < products.length - 1 && (
-                  <Divider
-                    orientation="vertical"
-                    flexItem
-                    sx={{ height: "60%" }}
-                  />
-                )}
               </Box>
             </SwiperSlide>
           ))}
         </Swiper>
       </Box>
-    </Container>
+    </Box>
   );
 }
 
