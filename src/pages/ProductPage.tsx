@@ -36,7 +36,7 @@ function Product() {
         }
       } catch (err) {
         if (isMounted) {
-           setError("Failed to load product. Please try again.");
+          setError("Failed to load product. Please try again.");
         }
       } finally {
         if (isMounted) {
@@ -59,21 +59,17 @@ function Product() {
       </Box>
     );
   }
-if (error) {
-  return (
-    <Container sx={{ py: 4 }}>
-      <Alert severity="error">
-        {error}
-      </Alert>
-    </Container>
-  );
-}
+  if (error) {
+    return (
+      <Container sx={{ py: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
   if (!product) {
     return (
       <Container sx={{ py: 4 }}>
-        <Alert severity="error">
-          Product not found
-          </Alert>
+        <Alert severity="error">Product not found</Alert>
       </Container>
     );
   }
@@ -102,11 +98,10 @@ if (error) {
               onChange={setQuantity}
             />
             <AddToCartActions product={product} quantity={quantity} />
-            <ProductSecondaryActions />
+            <ProductSecondaryActions productId={product.id} />
           </Box>
 
-          <ProductMeta product={product}  />
-
+          <ProductMeta product={product} />
         </Box>
       </Box>
 
