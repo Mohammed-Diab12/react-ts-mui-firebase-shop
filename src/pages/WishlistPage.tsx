@@ -1,4 +1,3 @@
-// src/pages/WishlistPage.tsx
 import { useEffect, useState } from "react";
 import {
   Container,
@@ -8,18 +7,21 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { getProductById } from "../services/productService";
 import { useProductFeatures } from "../context/ProductFeaturesContext";
 import type { Product as ProductType } from "../types";
 import ProductCard from "../components/Home/ProductCard";
 
 function WishlistPage() {
-  const { wishlistIds } = useProductFeatures();
+  const { wishlistIds, featuresLoading } = useProductFeatures();
   const [products, setProducts] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (featuresLoading) return;
+
     let isMounted = true;
 
     const fetchProducts = async () => {
@@ -54,9 +56,9 @@ function WishlistPage() {
     return () => {
       isMounted = false;
     };
-  }, [wishlistIds]);
+  }, [wishlistIds, featuresLoading]);
 
-  if (loading) {
+  if (featuresLoading || loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
         <CircularProgress />
@@ -79,11 +81,36 @@ function WishlistPage() {
       </Typography>
 
       {products.length === 0 ? (
-        <Typography color="text.secondary">Your wishlist is empty.</Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            py: 8,
+            textAlign: "center",
+          }}
+        >
+          <FavoriteBorderIcon
+            sx={{
+              fontSize: 56,
+              color: "text.secondary",
+              mb: 2,
+            }}
+          />
+
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Your Wishlist is Empty
+          </Typography>
+
+          <Typography color="text.secondary">
+            Save your favorite products and find them here anytime.
+          </Typography>
+        </Box>
       ) : (
-        <Grid container spacing={1}>
+        <Grid container spacing={3}>
           {products.map((product) => (
-            <Grid key={product.id} size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid key={product.id} size={{ xs: 12, sm: 6, md: 4 }}>
               <ProductCard
                 id={product.id}
                 category={product.category}

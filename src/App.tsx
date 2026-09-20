@@ -3,15 +3,17 @@ import router from "./routes/Router";
 import { CartProvider } from "./context/CartContext";
 import { AppThemeProvider } from "./theme/ThemeProvider";
 import { ProductFeaturesProvider } from "./context/ProductFeaturesContext";
-
+import { AuthProvider } from "./context/AuthContext";
 function App() {
   return (
     <AppThemeProvider>
-      <CartProvider>
-        <ProductFeaturesProvider>
-          <RouterProvider router={router} />
-        </ProductFeaturesProvider>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <ProductFeaturesProvider>
+            <RouterProvider router={router} />
+          </ProductFeaturesProvider>
+        </CartProvider>
+      </AuthProvider>
     </AppThemeProvider>
   );
 }

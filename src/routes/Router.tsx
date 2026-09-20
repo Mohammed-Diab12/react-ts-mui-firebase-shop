@@ -5,6 +5,7 @@ import ProductPage from "../pages/ProductPage";
 import CartPage from "../pages/CartPage";
 import WishlistPage from "../pages/WishlistPage";
 import ComparePage from "../pages/ComparePage";
+import LoginPage from "../pages/LoginPage";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
         path: "/compare",
 
         element: <ComparePage />,
+      },
+      {
+        path: "login",
+        element: <LoginPage />,
       },
     ],
   },

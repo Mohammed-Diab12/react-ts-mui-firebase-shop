@@ -1,18 +1,23 @@
-import { Link } from "react-router-dom";
-import MobileDevicesCategory from "../components/Home/category/ProductCategoryCarousel";
-import AudioSoundCategory from "../components/Home/category/ProductCategoryCarousel";
+import ProductCategoryCarousel from "../components/Home/category/ProductCategoryCarousel";
 import bluetoothSpeaker from "../../public/bluetoothSpeaker.jpg";
-
 import PromoBanner from "../components/Home/PromoBanner";
 import BrandStrip from "../components/Home/BrandStrip";
 import { Container, Box } from "@mui/material";
+import type { Product } from "../types";
+
+const SMARTPHONE_TABLET_CATEGORIES: Product["category"][] = [
+  "Smartphone",
+  "Tablet",
+];
+const AUDIO_SOUND_CATEGORIES: Product["category"][] = ["Audio & Sound"];
+const LAPTOP_CATEGORIES: Product["category"][] = ["Laptop"];
 
 function HomePage() {
   return (
-    <Container>
-      <MobileDevicesCategory
+    <Container sx={{ display: "flex", gap: 3, flexDirection: "column" }}>
+      <ProductCategoryCarousel
         categoryTitle="Smartphone & Tablet"
-        categories={["Smartphone", "Tablet"]}
+        categories={SMARTPHONE_TABLET_CATEGORIES}
       />
 
       <Box
@@ -21,12 +26,13 @@ function HomePage() {
           flexDirection: { xs: "column", md: "row" },
           width: "100%",
           alignItems: "center",
+          gap: 1,
         }}
       >
         <Box sx={{ flex: 1, minWidth: 0, width: "100%" }}>
-          <AudioSoundCategory
+          <ProductCategoryCarousel
             categoryTitle="Audio & Sound"
-            categories={["Audio & Sound"]}
+            categories={AUDIO_SOUND_CATEGORIES}
           />
         </Box>
 
@@ -41,6 +47,12 @@ function HomePage() {
           }}
         />
       </Box>
+
+      <ProductCategoryCarousel
+        categoryTitle="Laptop"
+        categories={LAPTOP_CATEGORIES}
+        rows={2}
+      />
 
       <PromoBanner />
       <BrandStrip />

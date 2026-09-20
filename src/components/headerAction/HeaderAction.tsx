@@ -23,8 +23,8 @@ export const HeaderActions = () => {
         gap: { xs: 1.5, md: 1 },
       }}
     >
-      <WishlistAction />
       <CompareAction />
+      <WishlistAction />
 
       <Box
         component={Link}

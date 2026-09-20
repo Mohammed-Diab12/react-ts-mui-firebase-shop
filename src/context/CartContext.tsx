@@ -8,6 +8,8 @@ import {
   useRef,
   type ReactNode,
 } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../services/firebase";
 import type { CartItem } from "../types";
 import {
   getCartId,
@@ -38,61 +40,61 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartId, setCartId] = useState<string | null>(null);
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const updateTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>(
     {},
   );
 
-  const refresh = useCallback(async () => {
-    const id = cartId ?? (await getCartId());
+  const cartIdRef = useRef<string | null>(null);
 
-    if (!cartId) {
-      setCartId(id);
-    }
-
+  const loadCartFor = useCallback(async (id: string) => {
+    cartIdRef.current = id;
     const cartItems = await getCart(id);
     setItems(cartItems);
-  }, [cartId]);
+    setLoading(false);
+  }, []);
 
-  useEffect(() => {
-    const initializeCart = async () => {
-      try {
-        const id = cartId ?? (await getCartId());
-
-        if (!cartId) {
-          setCartId(id);
-        }
-
-        const cartItems = await getCart(id);
-        setItems(cartItems);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeCart();
+  const refresh = useCallback(async () => {
+    const id = cartIdRef.current;
+    if (!id) return;
+    const cartItems = await getCart(id);
+    setItems(cartItems);
   }, []);
 
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        cartIdRef.current = null;
+        setItems([]);
+        await getCartId().catch(() => {});
+        return;
+      }
+      if (currentUser.uid !== cartIdRef.current) {
+        await loadCartFor(currentUser.uid);
+      }
+    });
+
     return () => {
+      unsubscribe();
       Object.values(updateTimeouts.current).forEach(clearTimeout);
       updateTimeouts.current = {};
     };
-  }, []);
+  }, [loadCartFor]);
 
   const addItem: CartContextValue["addItem"] = async (
     product,
     quantity = 1,
   ) => {
-    if (!cartId) return;
-    await addToCartService(cartId, product, quantity);
+    const id = cartIdRef.current;
+    if (!id) return;
+    await addToCartService(id, product, quantity);
     await refresh();
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
-    if (!cartId) return;
+    const id = cartIdRef.current;
+    if (!id) return;
     setItems((prev) =>
       prev
         .map((item) =>
@@ -105,10 +107,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
     updateTimeouts.current[productId] = setTimeout(async () => {
       try {
-        await updateCartItemService(cartId, productId, quantity);
+        await updateCartItemService(id, productId, quantity);
       } catch (error) {
         console.error("Failed to update cart quantity:", error);
-
         await refresh();
       }
       delete updateTimeouts.current[productId];
@@ -116,16 +117,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeItem = async (productId: string) => {
-    if (!cartId) return;
+    const id = cartIdRef.current;
+    if (!id) return;
     setItems((prev) => prev.filter((item) => item.productId !== productId));
-    await removeFromCartService(cartId, productId);
+    await removeFromCartService(id, productId);
     await refresh();
   };
 
   const clearAll = async () => {
-    if (!cartId) return;
+    const id = cartIdRef.current;
+    if (!id) return;
     setItems([]);
-    await clearCartService(cartId);
+    await clearCartService(id);
   };
 
   const itemCount = useMemo(

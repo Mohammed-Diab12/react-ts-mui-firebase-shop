@@ -1,43 +1,59 @@
-// productFeaturesService.ts
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { db } from "./firebase";
 
-const WISHLIST_KEY = "wishlist_items";
-const COMPARE_KEY = "compare_items";
+type FeatureType = "wishlist" | "compare";
 
-// Generic localStorage helpers — shared by wishlist and compare
-const getIds = (key: string): string[] => {
+const getIds = async (uid: string, feature: FeatureType): Promise<string[]> => {
   try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as string[]) : [];
-  } catch {
+    const ref = collection(db, "users", uid, feature);
+    const snapshot = await getDocs(ref);
+    return snapshot.docs.map((docSnap) => docSnap.id);
+  } catch (error) {
+    console.error(`Failed to fetch ${feature} from Firestore.`, error);
     return [];
   }
 };
 
-const setIds = (key: string, ids: string[]): void => {
+const toggleId = async (
+  uid: string,
+  feature: FeatureType,
+  productId: string,
+): Promise<string[]> => {
+  const productRef = doc(db, "users", uid, feature, productId);
+
   try {
-    localStorage.setItem(key, JSON.stringify(ids));
-  } catch {
-    console.error("Failed to save product IDs to localStorage.");
+    const snap = await getDoc(productRef);
+
+    if (snap.exists()) {
+      await deleteDoc(productRef);
+    } else {
+      await setDoc(productRef, { addedAt: serverTimestamp() });
+    }
+  } catch (error) {
+    console.error(`Failed to update ${feature} on Firestore.`, error);
   }
+
+  return getIds(uid, feature);
 };
 
-const toggleId = (key: string, productId: string): string[] => {
-  const current = getIds(key);
-  const exists = current.includes(productId);
-  const updated = exists
-    ? current.filter((id) => id !== productId)
-    : [...current, productId];
+export const getWishlistIds = (uid: string): Promise<string[]> =>
+  getIds(uid, "wishlist");
+export const toggleWishlistId = (
+  uid: string,
+  productId: string,
+): Promise<string[]> => toggleId(uid, "wishlist", productId);
 
-  setIds(key, updated);
-  return updated;
-};
-
-// Wishlist
-export const getWishlistIds = (): string[] => getIds(WISHLIST_KEY);
-export const toggleWishlistId = (productId: string): string[] =>
-  toggleId(WISHLIST_KEY, productId);
-
-// Compare
-export const getCompareIds = (): string[] => getIds(COMPARE_KEY);
-export const toggleCompareId = (productId: string): string[] =>
-  toggleId(COMPARE_KEY, productId);
+export const getCompareIds = (uid: string): Promise<string[]> =>
+  getIds(uid, "compare");
+export const toggleCompareId = (
+  uid: string,
+  productId: string,
+): Promise<string[]> => toggleId(uid, "compare", productId);

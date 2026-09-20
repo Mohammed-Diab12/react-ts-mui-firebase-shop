@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useState,
+  useEffect,
   useCallback,
   useMemo,
   type ReactNode,
@@ -12,17 +13,20 @@ import {
   getCompareIds,
   toggleCompareId,
 } from "../services/productFeaturesService";
+import { useAuth } from "./AuthContext";
 
 interface ProductFeaturesContextValue {
   wishlistIds: string[];
   wishlistCount: number;
   isInWishlist: (productId: string) => boolean;
-  toggleWishlist: (productId: string) => void;
+  toggleWishlist: (productId: string) => Promise<void>;
 
   compareIds: string[];
   compareCount: number;
   isInCompare: (productId: string) => boolean;
-  toggleCompare: (productId: string) => void;
+  toggleCompare: (productId: string) => Promise<void>;
+
+  featuresLoading: boolean;
 }
 
 const ProductFeaturesContext = createContext<
@@ -34,16 +38,62 @@ export const ProductFeaturesProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const [wishlistIds, setWishlistIds] = useState<string[]>(getWishlistIds);
-  const [compareIds, setCompareIds] = useState<string[]>(getCompareIds);
+  const { user } = useAuth();
+  const uid = user?.uid;
 
-  const toggleWishlist = useCallback((productId: string) => {
-    setWishlistIds(toggleWishlistId(productId));
-  }, []);
+  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [featuresLoading, setFeaturesLoading] = useState(true);
 
-  const toggleCompare = useCallback((productId: string) => {
-    setCompareIds(toggleCompareId(productId));
-  }, []);
+  useEffect(() => {
+    if (!uid) {
+      setWishlistIds([]);
+      setCompareIds([]);
+      setFeaturesLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadFeatures = async () => {
+      setFeaturesLoading(true);
+
+      const [wishlist, compare] = await Promise.all([
+        getWishlistIds(uid),
+        getCompareIds(uid),
+      ]);
+
+      if (isMounted) {
+        setWishlistIds(wishlist);
+        setCompareIds(compare);
+        setFeaturesLoading(false);
+      }
+    };
+
+    loadFeatures();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [uid]);
+
+  const toggleWishlist = useCallback(
+    async (productId: string) => {
+      if (!uid) return;
+      const updated = await toggleWishlistId(uid, productId);
+      setWishlistIds(updated);
+    },
+    [uid],
+  );
+
+  const toggleCompare = useCallback(
+    async (productId: string) => {
+      if (!uid) return;
+      const updated = await toggleCompareId(uid, productId);
+      setCompareIds(updated);
+    },
+    [uid],
+  );
 
   const isInWishlist = useCallback(
     (productId: string) => wishlistIds.includes(productId),
@@ -66,6 +116,8 @@ export const ProductFeaturesProvider = ({
       compareCount: compareIds.length,
       isInCompare,
       toggleCompare,
+
+      featuresLoading,
     }),
     [
       wishlistIds,
@@ -74,6 +126,7 @@ export const ProductFeaturesProvider = ({
       toggleWishlist,
       isInCompare,
       toggleCompare,
+      featuresLoading,
     ],
   );
 

@@ -40,14 +40,8 @@ function ProductCard({
   const compared = isInCompare(id);
 
   return (
-    <Box
-      sx={{
-        position: "relative",
-        width: "100%",
-        height: "100%",
-      }}
-    >
-      {/* Remove icons — only shown when the product is already saved */}
+    // Plain positioning wrapper only — no layout/background duplication
+    <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
       {(wishlisted || compared) && (
         <Box
           sx={{
