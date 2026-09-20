@@ -65,6 +65,9 @@ function ProfilePage() {
             <Typography variant="body2" color="text.secondary">
               {user.email}
             </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {user.phoneNumber}
+            </Typography>
             <Typography
               variant="caption"
               color="text.secondary"
