@@ -37,7 +37,7 @@ function Product() {
       } catch (err) {
         if (isMounted) {
           setError("Failed to load product. Please try again.");
-          console.log(err);
+          console.error(err);
         }
       } finally {
         if (isMounted) {

@@ -23,9 +23,21 @@ const pages = [
   { name: "BRANDS", path: "/cart" },
 ];
 
-const settings = [
-  { name: "Profile", path: "/profile" },
-  { name: "Logout", action: "logout" as const },
+type Setting =
+  | {
+      name: string;
+      type: "link";
+      path: string;
+    }
+  | {
+      name: string;
+      type: "action";
+      action: "logout";
+    };
+
+const settings: Setting[] = [
+  { name: "Profile", type: "link", path: "/profile" },
+  { name: "Logout", type: "action", action: "logout" as const },
 ];
 
 function Navbar() {
@@ -49,15 +61,15 @@ function Navbar() {
     }
   };
 
-  const handleSettingClick = (setting: (typeof settings)[number]) => {
+  const handleSettingClick = (setting: Setting) => {
     handleCloseUserMenu();
-    if (setting.action === "logout") {
+
+    if (setting.type === "action") {
       handleLogout();
       return;
     }
-    if (setting.path) {
-      navigate(setting.path);
-    }
+
+    navigate(setting.path);
   };
 
   return (
@@ -68,7 +80,7 @@ function Navbar() {
         top: 0,
         zIndex: 1000,
         bgcolor: { xs: "transparent", md: "brand.main" },
-        boxShadow: { xs: "none", md: undefined },
+        boxShadow: { xs: "none" },
       }}
     >
       <Toolbar disableGutters>
@@ -81,7 +93,6 @@ function Navbar() {
                 sx={{
                   py: 1,
                   color: "background.paper",
-                  display: "block",
                   fontWeight: 600,
                 }}
               >

@@ -40,7 +40,6 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartId, setCartId] = useState<string | null>(null);
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const updateTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>(
@@ -51,7 +50,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const loadCartFor = useCallback(async (id: string) => {
     cartIdRef.current = id;
-    setCartId(id);
     const cartItems = await getCart(id);
     setItems(cartItems);
     setLoading(false);
