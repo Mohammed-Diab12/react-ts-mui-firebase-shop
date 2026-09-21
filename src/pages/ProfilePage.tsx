@@ -33,7 +33,7 @@ function ProfilePage() {
     }
   };
 
-  if (loading || !isAuthenticated || !user) {
+  if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
         <CircularProgress />
@@ -41,6 +41,9 @@ function ProfilePage() {
     );
   }
 
+  if (!isAuthenticated || !user) {
+    return null;
+  }
   const providerId = user.providerData[0]?.providerId ?? "";
   const providerLabel = providerId.includes("google")
     ? "Google"
@@ -65,9 +68,11 @@ function ProfilePage() {
             <Typography variant="body2" color="text.secondary">
               {user.email}
             </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {user.phoneNumber}
-            </Typography>
+            {user.phoneNumber && (
+              <Typography variant="body1" color="text.secondary">
+                {user.phoneNumber}
+              </Typography>
+            )}
             <Typography
               variant="caption"
               color="text.secondary"
