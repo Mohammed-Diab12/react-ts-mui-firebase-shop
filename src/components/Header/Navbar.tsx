@@ -21,6 +21,7 @@ const pages = [
   { name: "PAGES", path: "/cart" },
   { name: "LOOKBOOK", path: "/cart" },
   { name: "BRANDS", path: "/cart" },
+  { name: "Profile", path: "/profile" },
 ];
 
 type Setting =

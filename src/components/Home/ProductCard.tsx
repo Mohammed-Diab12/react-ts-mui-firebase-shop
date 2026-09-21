@@ -1,13 +1,7 @@
 import { Link as RouterLink } from "react-router-dom";
 import type { Product } from "../../types";
 import { formatPrice } from "../cart/utils";
-import {
-  CardContent,
-  CardMedia,
-  Typography,
-  Box,
-  IconButton,
-} from "@mui/material";
+import { CardMedia, Typography, Box, IconButton } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import { useProductFeatures } from "../../context/ProductFeaturesContext";
@@ -40,7 +34,6 @@ function ProductCard({
   const compared = isInCompare(id);
 
   return (
-    // Plain positioning wrapper only — no layout/background duplication
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
       {(wishlisted || compared) && (
         <Box
@@ -117,7 +110,7 @@ function ProductCard({
               top: 12,
               left: 12,
               backgroundColor: "error.main",
-              color: "white",
+              color: "common.white",
               px: 1,
               py: 0.2,
               fontSize: "0.8rem",
@@ -145,16 +138,16 @@ function ProductCard({
           }
         />
 
-        <CardContent
+        <Box
           sx={{
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: isHorizontal ? "flex-start" : "center",
             textAlign: isHorizontal ? "left" : "center",
-            width: "100%",
-            p: isHorizontal ? 0 : undefined,
-            "&:last-child": { pb: isHorizontal ? 0 : undefined },
+            flex: 1,
+            minWidth: 0,
+            p: isHorizontal ? 0 : 2,
           }}
         >
           <Typography variant="body2">{title}</Typography>
@@ -179,7 +172,7 @@ function ProductCard({
               </Typography>
             )}
           </Box>
-        </CardContent>
+        </Box>
       </Box>
     </Box>
   );
