@@ -18,6 +18,7 @@ function WishlistPage() {
   const [products, setProducts] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [partialError, setPartialError] = useState<string | null>(null);
 
   useEffect(() => {
     if (featuresLoading) return;
@@ -33,21 +34,42 @@ function WishlistPage() {
 
       setLoading(true);
       setError(null);
-      try {
-        const results = await Promise.all(
-          wishlistIds.map((id) => getProductById(id)),
-        );
-        if (isMounted) {
-          setProducts(results.filter((p): p is ProductType => p !== null));
+      setPartialError(null);
+
+      const results = await Promise.allSettled(
+        wishlistIds.map((id) => getProductById(id)),
+      );
+
+      if (isMounted) {
+        const fetchedProducts = results
+          .filter(
+            (result): result is PromiseFulfilledResult<ProductType | null> =>
+              result.status === "fulfilled",
+          )
+          .map((result) => result.value)
+          .filter((p): p is ProductType => p !== null);
+
+        setProducts(fetchedProducts);
+
+        const failedCount = results.filter(
+          (result) =>
+            result.status === "rejected" ||
+            (result.status === "fulfilled" && result.value === null),
+        ).length;
+
+        if (failedCount > 0) {
+          if (fetchedProducts.length === 0) {
+            setError("Failed to load wishlist. Please try again.");
+          } else {
+            setPartialError(
+              failedCount === 1
+                ? "1 product couldn't be loaded and was skipped."
+                : `${failedCount} products couldn't be loaded and were skipped.`,
+            );
+          }
         }
-      } catch (err) {
-        if (isMounted) {
-          setError("Failed to load wishlist. Please try again.");
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+
+        setLoading(false);
       }
     };
 
@@ -79,6 +101,12 @@ function WishlistPage() {
       <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
         Wishlist
       </Typography>
+
+      {partialError && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          {partialError}
+        </Alert>
+      )}
 
       {products.length === 0 ? (
         <Box

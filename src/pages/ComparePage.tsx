@@ -104,6 +104,7 @@ function ComparePage() {
   const [comparedProducts, setComparedProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [partialError, setPartialError] = useState<string | null>(null);
 
   useEffect(() => {
     if (featuresLoading) return;
@@ -119,27 +120,42 @@ function ComparePage() {
 
       setIsLoadingProducts(true);
       setLoadError(null);
+      setPartialError(null);
 
-      try {
-        const fetchedProducts = await Promise.all(
-          compareIds.map((productId) => getProductById(productId)),
-        );
+      const results = await Promise.allSettled(
+        compareIds.map((productId) => getProductById(productId)),
+      );
 
-        if (isMounted) {
-          setComparedProducts(
-            fetchedProducts.filter(
-              (product): product is Product => product !== null,
-            ),
-          );
+      if (isMounted) {
+        const fetchedProducts = results
+          .filter(
+            (result): result is PromiseFulfilledResult<Product | null> =>
+              result.status === "fulfilled",
+          )
+          .map((result) => result.value)
+          .filter((product): product is Product => product !== null);
+
+        setComparedProducts(fetchedProducts);
+
+        const failedCount = results.filter(
+          (result) =>
+            result.status === "rejected" ||
+            (result.status === "fulfilled" && result.value === null),
+        ).length;
+
+        if (failedCount > 0) {
+          if (fetchedProducts.length === 0) {
+            setLoadError("Failed to load compare list. Please try again.");
+          } else {
+            setPartialError(
+              failedCount === 1
+                ? "1 product couldn't be loaded and was skipped."
+                : `${failedCount} products couldn't be loaded and were skipped.`,
+            );
+          }
         }
-      } catch (fetchErr) {
-        if (isMounted) {
-          setLoadError("Failed to load compare list. Please try again.");
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoadingProducts(false);
-        }
+
+        setIsLoadingProducts(false);
       }
     };
 
@@ -171,6 +187,12 @@ function ComparePage() {
       <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
         Compare
       </Typography>
+
+      {partialError && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          {partialError}
+        </Alert>
+      )}
 
       {comparedProducts.length === 0 ? (
         <Box
