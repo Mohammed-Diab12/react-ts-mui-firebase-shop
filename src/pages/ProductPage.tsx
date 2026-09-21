@@ -99,7 +99,7 @@ function Product() {
               onChange={setQuantity}
             />
             <AddToCartActions product={product} quantity={quantity} />
-            <ProductSecondaryActions />
+            <ProductSecondaryActions productId={product.id} />
           </Box>
 
           <ProductMeta product={product} />
