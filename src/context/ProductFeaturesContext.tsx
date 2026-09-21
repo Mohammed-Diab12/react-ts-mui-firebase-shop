@@ -58,16 +58,28 @@ export const ProductFeaturesProvider = ({
     const loadFeatures = async () => {
       setFeaturesLoading(true);
 
-      const [wishlist, compare] = await Promise.all([
+      const results = await Promise.allSettled([
         getWishlistIds(uid),
         getCompareIds(uid),
       ]);
 
-      if (isMounted) {
-        setWishlistIds(wishlist);
-        setCompareIds(compare);
-        setFeaturesLoading(false);
+      if (!isMounted) return;
+
+      const [wishlistResult, compareResult] = results;
+
+      if (wishlistResult.status === "fulfilled") {
+        setWishlistIds(wishlistResult.value);
+      } else {
+        console.error("Failed to load wishlist.", wishlistResult.reason);
       }
+
+      if (compareResult.status === "fulfilled") {
+        setCompareIds(compareResult.value);
+      } else {
+        console.error("Failed to load compare.", compareResult.reason);
+      }
+
+      setFeaturesLoading(false);
     };
 
     loadFeatures();
