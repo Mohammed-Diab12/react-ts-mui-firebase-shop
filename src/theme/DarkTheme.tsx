@@ -1,4 +1,6 @@
 import type { ThemeOptions } from "@mui/material/styles";
+import swatchDark from "../assets/brandsLogo/swatchDark.svg";
+import yodyDark from "../assets/brandsLogo/yodyDark.svg";
 
 export const darkThemeOptions: ThemeOptions = {
   palette: {
@@ -20,12 +22,16 @@ export const darkThemeOptions: ThemeOptions = {
     secondary: {
       main: "#fff",
     },
-     brand: {
+    brand: {
       main: "#D5DCE3",
     },
   },
 
   typography: {
     fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+  },
+  brandLogos: {
+    swatch: swatchDark,
+    yody: yodyDark,
   },
 };

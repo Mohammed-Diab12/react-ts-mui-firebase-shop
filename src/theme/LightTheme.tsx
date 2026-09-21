@@ -1,4 +1,7 @@
 import type { ThemeOptions } from "@mui/material/styles";
+import swatchLight from "../assets/brandsLogo/swatchLight.svg";
+import yodyLight from "../assets/brandsLogo/yodyLight.svg";
+
 
 export const lightThemeOptions: ThemeOptions = {
   palette: {
@@ -25,4 +28,9 @@ export const lightThemeOptions: ThemeOptions = {
   typography: {
     fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
   },
+  brandLogos: {
+    swatch: swatchLight,
+    yody: yodyLight,
+
+  }
 };

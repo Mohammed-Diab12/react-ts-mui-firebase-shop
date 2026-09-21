@@ -10,4 +10,17 @@ declare module "@mui/material/styles" {
     content?: PaletteOptions["primary"];
     brand?: PaletteOptions["primary"];
   }
+  interface Theme {
+    brandLogos: {
+      swatch: string;
+      yody: string;
+    };
+  }
+
+  interface ThemeOptions {
+    brandLogos?: {
+      swatch: string;
+      yody: string;
+    };
+  }
 }
