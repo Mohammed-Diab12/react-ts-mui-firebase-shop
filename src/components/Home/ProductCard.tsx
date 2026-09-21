@@ -1,7 +1,10 @@
 import { Link as RouterLink } from "react-router-dom";
 import type { Product } from "../../types";
 import { formatPrice } from "../cart/utils";
-import { CardContent, CardMedia, Typography, Box } from "@mui/material";
+import { CardMedia, Typography, Box, IconButton } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
+import { useProductFeatures } from "../../context/ProductFeaturesContext";
 
 type ProductProps = Pick<
   Product,
@@ -16,6 +19,9 @@ function ProductCard({
   price,
   discountPercentage,
 }: ProductProps) {
+  const { isInWishlist, toggleWishlist, isInCompare, toggleCompare } =
+    useProductFeatures();
+
   const hasDiscount = !!discountPercentage && discountPercentage > 0;
   const discountedPrice = hasDiscount
     ? price - (price * discountPercentage) / 100
@@ -24,97 +30,150 @@ function ProductCard({
   const formattedOriginalPrice = formatPrice(price);
 
   const isHorizontal = category === "Laptop";
+  const wishlisted = isInWishlist(id);
+  const compared = isInCompare(id);
 
   return (
-    <Box
-      component={RouterLink}
-      to={`/products/${id}`}
-      sx={{
-        position: "relative",
-        display: "flex",
-        flexDirection: isHorizontal ? "row" : "column",
-        alignItems: isHorizontal ? "center" : "stretch",
-        backgroundColor: "background.paper",
-        textDecoration: "none",
-        color: "inherit",
-        p: isHorizontal ? 1 : 0,
-        gap: isHorizontal ? 2 : 0,
-        border: "none",
-        width: "100%",
-        height: "100%",
-        boxSizing: "border-box",
-      }}
-    >
-      {hasDiscount && (
+    <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+      {(wishlisted || compared) && (
         <Box
           sx={{
             position: "absolute",
-            top: 12,
-            left: 12,
-            backgroundColor: "error.main",
-            color: "white",
-            px: 1,
-            py: 0.2,
-            fontSize: "0.8rem",
-            fontWeight: 700,
-            zIndex: 1,
+            top: 8,
+            right: 8,
+            zIndex: 2,
+            display: "flex",
+            gap: 0.5,
           }}
         >
-          -{discountPercentage}%
+          {wishlisted && (
+            <IconButton
+              aria-label="Remove from wishlist"
+              size="small"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleWishlist(id);
+              }}
+              sx={{
+                backgroundColor: "background.paper",
+                "&:hover": { backgroundColor: "background.paper" },
+              }}
+            >
+              <FavoriteIcon fontSize="small" color="error" />
+            </IconButton>
+          )}
+
+          {compared && (
+            <IconButton
+              aria-label="Remove from compare"
+              size="small"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleCompare(id);
+              }}
+              sx={{
+                backgroundColor: "background.paper",
+                "&:hover": { backgroundColor: "background.paper" },
+              }}
+            >
+              <CompareArrowsIcon fontSize="small" color="primary" />
+            </IconButton>
+          )}
         </Box>
       )}
 
-      <CardMedia
-        component="img"
-        image={thumbnail}
-        alt={title}
-        sx={
-          isHorizontal
-            ? { width: 90, height: "100%", objectFit: "contain", flexShrink: 0 }
-            : { height: 140, objectFit: "contain" }
-        }
-      />
-
-      <CardContent
+      <Box
+        component={RouterLink}
+        to={`/products/${id}`}
         sx={{
+          position: "relative",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: isHorizontal ? "flex-start" : "center",
-          textAlign: isHorizontal ? "left" : "center",
+          flexDirection: isHorizontal ? "row" : "column",
+          alignItems: isHorizontal ? "center" : "stretch",
+          backgroundColor: "background.default",
+          textDecoration: "none",
+          color: "inherit",
+          p: isHorizontal ? 1 : 0,
+          gap: isHorizontal ? 2 : 0,
+          border: "none",
           width: "100%",
-          p: isHorizontal ? 0 : undefined,
-          "&:last-child": { pb: isHorizontal ? 0 : undefined },
+          height: "100%",
+          boxSizing: "border-box",
         }}
       >
-        <Typography
-          variant="body2"
-          sx={{ wordBreak: "break-word" }}
-        >
-          {title}
-        </Typography>
-
-        <Box sx={{ display: "flex", gap: 1, mt: isHorizontal ? 0.5 : 1.5 }}>
-          <Typography
-            variant="body1"
-            sx={{ color: "primary.main", fontWeight: 700 }}
+        {hasDiscount && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 12,
+              left: 12,
+              backgroundColor: "error.main",
+              color: "common.white",
+              px: 1,
+              py: 0.2,
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              zIndex: 1,
+            }}
           >
-            {formattedPrice}
-          </Typography>
-          {hasDiscount && (
+            -{discountPercentage}%
+          </Box>
+        )}
+
+        <CardMedia
+          component="img"
+          image={thumbnail}
+          alt={title}
+          sx={
+            isHorizontal
+              ? {
+                  width: 90,
+                  height: "100%",
+                  objectFit: "contain",
+                  flexShrink: 0,
+                }
+              : { height: 140, objectFit: "contain" }
+          }
+        />
+
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: isHorizontal ? "flex-start" : "center",
+            textAlign: isHorizontal ? "left" : "center",
+            flex: 1,
+            minWidth: 0,
+            p: isHorizontal ? 0 : 2,
+          }}
+        >
+          <Typography variant="body2">{title}</Typography>
+
+          <Box sx={{ display: "flex", gap: 1, mt: isHorizontal ? 0.5 : 1.5 }}>
             <Typography
               variant="body1"
-              sx={{
-                color: "text.secondary",
-                textDecorationLine: "line-through",
-                fontWeight: 700,
-              }}
+              sx={{ color: "primary.main", fontWeight: 700 }}
             >
-              {formattedOriginalPrice}
+              {formattedPrice}
             </Typography>
-          )}
+            {hasDiscount && (
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "text.secondary",
+                  textDecorationLine: "line-through",
+                  fontWeight: 700,
+                }}
+              >
+                {formattedOriginalPrice}
+              </Typography>
+            )}
+          </Box>
         </Box>
-      </CardContent>
+      </Box>
     </Box>
   );
 }

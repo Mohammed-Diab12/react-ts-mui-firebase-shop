@@ -3,6 +3,8 @@ import Layout from "../mainlayout/Layout";
 import HomePage from "../pages/HomePage";
 import ProductPage from "../pages/ProductPage";
 import CartPage from "../pages/CartPage";
+import WishlistPage from "../pages/WishlistPage";
+import ComparePage from "../pages/ComparePage";
 import LoginPage from "../pages/LoginPage";
 import ProfilePage from "../pages/ProfilePage";
 
@@ -23,6 +25,16 @@ const router = createBrowserRouter([
       {
         path: "cart",
         element: <CartPage />,
+      },
+      {
+        path: "/wishlist",
+
+        element: <WishlistPage />,
+      },
+      {
+        path: "/compare",
+
+        element: <ComparePage />,
       },
       {
         path: "login",

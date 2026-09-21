@@ -23,6 +23,7 @@ function Header() {
             justifyContent: "space-between",
             alignItems: "center",
             py: 1,
+            height: "50px",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
