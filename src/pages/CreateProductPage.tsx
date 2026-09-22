@@ -52,7 +52,6 @@ const initialForm: FormState = {
 };
 
 // --- Gate screens ---
-
 const AnonymousGate = ({ onLogin }: { onLogin: () => void }) => (
   <Paper
     variant="outlined"
@@ -106,7 +105,6 @@ const NotAdminGate = () => (
 );
 
 // --- Main page ----
-
 function CreateProductPage() {
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
