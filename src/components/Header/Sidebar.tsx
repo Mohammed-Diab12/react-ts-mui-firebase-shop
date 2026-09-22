@@ -15,24 +15,30 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import { HeaderActions } from "../headerAction/HeaderAction";
 import { ThemeToggleButton } from "../themeToggleButton/ThemeToggleButton";
-
-const pages = [
-  { name: "HOME", path: "/" },
-  { name: "SHOP", path: "/" },
-  { name: "PAGES", path: "/cart" },
-  { name: "LOOKBOOK", path: "/cart" },
-  { name: "BRANDS", path: "/cart" },
-];
+import { pages } from "./pages";
+import { logout } from "../../services/authServices";
+import { useAuth } from "../../context/AuthContext";
 
 function Sidebar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const handleToggle = () => setOpen((prev) => !prev);
 
   const handleNavigate = (path: string) => {
     navigate(path);
     setOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setOpen(false);
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -100,6 +106,18 @@ function Sidebar() {
           <Stack spacing={0.5} sx={{ px: 2, py: 1.5, flexGrow: 1 }}>
             <HeaderActions />
           </Stack>
+
+          {/* Logout*/}
+          {isAuthenticated && (
+            <>
+              <Divider />
+              <List sx={{ py: 0 }}>
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemText primary="Logout" />
+                </ListItemButton>
+              </List>
+            </>
+          )}
         </Box>
       </Drawer>
     </>
