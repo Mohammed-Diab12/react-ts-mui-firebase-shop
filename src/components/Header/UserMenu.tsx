@@ -4,6 +4,8 @@ import Avatar from "@mui/material/Avatar";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../services/authServices";
@@ -28,6 +30,7 @@ function UserMenu({ sx }: UserMenuProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -40,6 +43,7 @@ function UserMenu({ sx }: UserMenuProps) {
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
+      setLogoutError("Failed to log out. Please try again.");
     }
   };
 
@@ -81,6 +85,21 @@ function UserMenu({ sx }: UserMenuProps) {
           </MenuItem>
         ))}
       </Menu>
+
+      <Snackbar
+        open={!!logoutError}
+        autoHideDuration={4000}
+        onClose={() => setLogoutError(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setLogoutError(null)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {logoutError}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

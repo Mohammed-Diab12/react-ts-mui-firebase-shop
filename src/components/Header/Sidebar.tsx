@@ -9,6 +9,8 @@ import {
   Divider,
   Typography,
   Stack,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
@@ -21,6 +23,7 @@ import { useAuth } from "../../context/AuthContext";
 
 function Sidebar() {
   const [open, setOpen] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
@@ -38,6 +41,7 @@ function Sidebar() {
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
+      setLogoutError("Failed to log out. Please try again.");
     }
   };
 
@@ -120,6 +124,21 @@ function Sidebar() {
           )}
         </Box>
       </Drawer>
+
+      <Snackbar
+        open={!!logoutError}
+        autoHideDuration={4000}
+        onClose={() => setLogoutError(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setLogoutError(null)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {logoutError}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

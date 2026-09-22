@@ -20,7 +20,7 @@ function Header() {
         position: "sticky",
         top: 0,
         zIndex: 1000,
-        mb:3
+        mb: 3,
       }}
     >
       <Container>
@@ -32,7 +32,6 @@ function Header() {
             alignItems: "center",
             py: 1,
             height: "50px",
-            
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
