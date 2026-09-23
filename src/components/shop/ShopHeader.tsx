@@ -1,4 +1,3 @@
-// src/components/shop/ShopHeader.tsx
 import { Box, Typography, Divider } from "@mui/material";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 
