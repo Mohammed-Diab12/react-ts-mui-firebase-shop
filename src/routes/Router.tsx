@@ -6,6 +6,7 @@ import CartPage from "../pages/CartPage";
 import WishlistPage from "../pages/WishlistPage";
 import ComparePage from "../pages/ComparePage";
 import LoginPage from "../pages/LoginPage";
+import CreateProductPage from "../pages/CreateProductPage";
 import ProfilePage from "../pages/ProfilePage";
 import ShopPage from "../pages/ShopPage";
 
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
         path: "products/:id",
 
         element: <ProductPage />,
+      },
+      {
+        path: "products/new",
+        element: <CreateProductPage />,
       },
       {
         path: "cart",
