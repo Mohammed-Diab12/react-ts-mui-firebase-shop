@@ -13,12 +13,10 @@ import {
   Typography,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import LockPersonIcon from "@mui/icons-material/LockPerson";
+import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
 import { useAuth } from "../context/AuthContext";
 import { createProduct } from "../services/productService";
 import type { Product, ProductCategory } from "../types";
-
-const ADMIN_EMAILS = ["mohammedmuayad2005@gmail.com"];
 
 const CATEGORIES: ProductCategory[] = [
   "Smartphone",
@@ -51,7 +49,7 @@ const initialForm: FormState = {
   sku: "",
 };
 
-// --- Gate screens ---
+// --- Gate screens --------
 const AnonymousGate = ({ onLogin }: { onLogin: () => void }) => (
   <Paper
     variant="outlined"
@@ -64,7 +62,7 @@ const AnonymousGate = ({ onLogin }: { onLogin: () => void }) => (
       alignItems: "center",
     }}
   >
-    <LockPersonIcon sx={{ fontSize: 56, color: "text.disabled", mb: 2 }} />
+    <LockOutlinedIcon sx={{ fontSize: 56, color: "text.disabled", mb: 2 }} />
     <Typography variant="h6" sx={{ mb: 1 }}>
       Sign in required
     </Typography>
@@ -93,7 +91,7 @@ const NotAdminGate = () => (
       alignItems: "center",
     }}
   >
-    <LockOutlinedIcon sx={{ fontSize: 56, color: "error.main", mb: 2 }} />
+    <BlockOutlinedIcon sx={{ fontSize: 56, color: "error.main", mb: 2 }} />
     <Typography variant="h6" sx={{ mb: 1 }}>
       Admins only
     </Typography>
@@ -104,14 +102,10 @@ const NotAdminGate = () => (
   </Paper>
 );
 
-// --- Main page ----
+// --- Main page -------
 function CreateProductPage() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
-
-  const isAdmin =
-    isAuthenticated && !!user?.email && ADMIN_EMAILS.includes(user.email);
-
+  const { isAuthenticated, isAdmin, loading: authLoading } = useAuth();
   const [formUnlocked, setFormUnlocked] = useState(false);
   const [form, setForm] = useState<FormState>(initialForm);
   const [submitting, setSubmitting] = useState(false);
