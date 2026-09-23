@@ -52,6 +52,7 @@ function HomePage() {
         categoryTitle="Laptop"
         categories={LAPTOP_CATEGORIES}
         rows={2}
+        slidesPerView={{ 0: 3, 600: 3, 900: 3, 1200: 3 }}
       />
 
       <PromoBanner />
