@@ -7,11 +7,13 @@ import {
 } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "../services/firebase";
+import { checkIsAdmin } from "../services/adminServices";
 
 interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isAnonymous: boolean;
+  isAdmin: boolean;
   loading: boolean;
 }
 
@@ -19,12 +21,26 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
+      if (!currentUser || currentUser.isAnonymous) {
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+      try {
+        const adminStatus = await checkIsAdmin(currentUser.uid);
+        setIsAdmin(adminStatus);
+      } catch (error) {
+        console.error("Failed to check admin status:", error);
+        setIsAdmin(false);
+      } finally {
+        setLoading(false);
+      }
     });
     return unsubscribe;
   }, []);
@@ -36,6 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user,
     isAuthenticated,
     isAnonymous,
+    isAdmin,
     loading,
   };
 

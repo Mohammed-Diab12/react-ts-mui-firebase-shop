@@ -5,6 +5,7 @@ import {
   getDocs,
   query,
   where,
+  addDoc,
   QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -16,7 +17,7 @@ const productsCollection = collection(db, products_Collections);
 const mapDocToProduct = (docSnap: QueryDocumentSnapshot): Product => {
   const data = docSnap.data();
   return {
-     id: docSnap.id,
+    id: docSnap.id,
     category: data.category,
     title: data.title,
     description: data.description,
@@ -67,5 +68,12 @@ export const getProductById = async (id: string): Promise<Product | null> => {
   if (!productSnap.exists()) {
     return null;
   }
- return mapDocToProduct(productSnap as QueryDocumentSnapshot);
+  return mapDocToProduct(productSnap as QueryDocumentSnapshot);
+};
+
+export const createProduct = async (
+  product: Omit<Product, "id">,
+): Promise<string> => {
+  const docRef = await addDoc(productsCollection, product);
+  return docRef.id;
 };
