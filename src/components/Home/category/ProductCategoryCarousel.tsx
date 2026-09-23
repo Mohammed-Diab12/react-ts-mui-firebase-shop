@@ -112,7 +112,10 @@ function ProductCategoryCarousel({
           {categoryTitle}
         </Typography>
 
-        <Box sx={{ width: 115, height: 3, bgcolor: "error.main", mt: 0.5 }} />
+        <Box sx={{ display: "flex", height: 3, mt: 0.5 }}>
+          <Box sx={{ width: 115, bgcolor: "error.main" }} />
+          <Box sx={{ flex: 1, bgcolor: "divider" }} />
+        </Box>
       </Box>
       {/* Products */}
       <Box

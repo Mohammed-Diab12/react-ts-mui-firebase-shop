@@ -47,15 +47,15 @@ function HomePage() {
           }}
         />
       </Box>
+      <PromoBanner />
 
       <ProductCategoryCarousel
         categoryTitle="Laptop"
         categories={LAPTOP_CATEGORIES}
         rows={2}
-        slidesPerView={{ 0: 3, 600: 3, 900: 3, 1200: 3 }}
+        slidesPerView={{ 0: 1, 600: 2, 900: 2, 1200: 3 }}
       />
 
-      <PromoBanner />
       <BrandStrip />
     </Container>
   );
