@@ -15,7 +15,6 @@ const CARD_GAP = 10;
 
 const PAGINATION_CONFIG = { clickable: true };
 
-// slidesPerView الافتراضي لكل breakpoint
 const DEFAULT_SLIDES_PER_VIEW = {
   0: 2,
   600: 3,
