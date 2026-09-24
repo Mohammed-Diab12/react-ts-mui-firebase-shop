@@ -69,7 +69,8 @@ function ProductCategoryCarousel({
 
       try {
         const data = await getProductsByCategories(categories);
-        setProducts(data);
+        const sorted = [...data].sort((a, b) => b.rating - a.rating);
+        setProducts(sorted);
       } catch (error) {
         console.error(`Failed to fetch ${categoryTitle} products:`, error);
         setError(true);

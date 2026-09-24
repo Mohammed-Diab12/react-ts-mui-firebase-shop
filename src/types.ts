@@ -16,6 +16,18 @@ export interface Product {
   discountPercentage?: number;
   stock: number;
   sku: string;
+  rating: number;
+  ratingCount: number;
+}
+
+// Review
+export interface Review {
+  id: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: Date | null;
 }
 
 // Cart

@@ -6,6 +6,7 @@ import {
   query,
   where,
   addDoc,
+  runTransaction,
   QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -27,6 +28,8 @@ const mapDocToProduct = (docSnap: QueryDocumentSnapshot): Product => {
     discountPercentage: data.discountPercentage,
     stock: data.stock,
     sku: data.sku,
+    rating: data.rating ?? 0,
+    ratingCount: data.ratingCount ?? 0,
   };
 };
 
@@ -76,4 +79,91 @@ export const createProduct = async (
 ): Promise<string> => {
   const docRef = await addDoc(productsCollection, product);
   return docRef.id;
+};
+
+// Recalculate rating/ratingCount after a new review is added
+export const applyReviewAdded = async (
+  productId: string,
+  newRating: number,
+): Promise<void> => {
+  const productRef = doc(db, products_Collections, productId);
+
+  await runTransaction(db, async (transaction) => {
+    const productSnap = await transaction.get(productRef);
+    if (!productSnap.exists()) return;
+
+    const data = productSnap.data();
+    const currentRating = data.rating ?? 0;
+    const currentCount = data.ratingCount ?? 0;
+
+    const newCount = currentCount + 1;
+    const updatedRating = (currentRating * currentCount + newRating) / newCount;
+
+    transaction.update(productRef, {
+      rating: updatedRating,
+      ratingCount: newCount,
+    });
+  });
+};
+
+// Recalculate rating after an existing review is edited
+export const applyReviewUpdated = async (
+  productId: string,
+  oldRating: number,
+  newRating: number,
+): Promise<void> => {
+  const productRef = doc(db, products_Collections, productId);
+
+  await runTransaction(db, async (transaction) => {
+    const productSnap = await transaction.get(productRef);
+    if (!productSnap.exists()) return;
+
+    const data = productSnap.data();
+    const currentRating = data.rating ?? 0;
+    const currentCount = data.ratingCount ?? 0;
+
+    if (currentCount === 0) return;
+
+    const updatedRating =
+      (currentRating * currentCount - oldRating + newRating) / currentCount;
+
+    transaction.update(productRef, {
+      rating: updatedRating,
+    });
+  });
+};
+
+// Recalculate rating/ratingCount after a review is deleted
+export const applyReviewDeleted = async (
+  productId: string,
+  removedRating: number,
+): Promise<void> => {
+  const productRef = doc(db, products_Collections, productId);
+
+  await runTransaction(db, async (transaction) => {
+    const productSnap = await transaction.get(productRef);
+    if (!productSnap.exists()) return;
+
+    const data = productSnap.data();
+    const currentRating = data.rating ?? 0;
+    const currentCount = data.ratingCount ?? 0;
+
+    const newCount = currentCount - 1;
+
+    if (newCount <= 0) {
+      transaction.update(productRef, {
+        rating: 0,
+        ratingCount: 0,
+      });
+      return;
+    }
+
+    const updatedRating =
+      (currentRating * currentCount - removedRating) / newCount;
+
+    transaction.update(productRef, {
+      rating: updatedRating,
+      ratingCount: newCount,
+    });
+  });
 };
