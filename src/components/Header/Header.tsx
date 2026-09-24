@@ -7,6 +7,7 @@ import UserMenu from "./UserMenu";
 
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import SearchBar from "../SearchBar";
 
 function Header() {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ function Header() {
               </Button>
             )}
           </Box>
-
+          <SearchBar />
           <Box
             sx={{
               display: { xs: "none", md: "flex" },
