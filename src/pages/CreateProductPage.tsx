@@ -170,6 +170,8 @@ function CreateProductPage() {
         price: Number(form.price),
         stock: Number(form.stock),
         sku: form.sku.trim(),
+        rating: 0,
+        ratingCount: 0,
         ...(form.discountPercentage
           ? { discountPercentage: Number(form.discountPercentage) }
           : {}),
