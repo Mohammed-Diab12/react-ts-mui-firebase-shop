@@ -15,29 +15,27 @@ const CARD_GAP = 10;
 
 const PAGINATION_CONFIG = { clickable: true };
 
-function getCarouselBreakpoints(rows: number) {
-  return {
-    0: {
-      slidesPerView: 2,
-      slidesPerGroup: 2,
-      grid: { rows, fill: "row" as const },
-    },
-    600: {
-      slidesPerView: 3,
-      slidesPerGroup: 3,
-      grid: { rows, fill: "row" as const },
-    },
-    900: {
-      slidesPerView: 4,
-      slidesPerGroup: 4,
-      grid: { rows, fill: "row" as const },
-    },
-    1200: {
-      slidesPerView: 5,
-      slidesPerGroup: 5,
-      grid: { rows, fill: "row" as const },
-    },
-  };
+const DEFAULT_SLIDES_PER_VIEW = {
+  0: 2,
+  600: 3,
+  900: 4,
+  1200: 5,
+};
+
+function getCarouselBreakpoints(
+  rows: number,
+  slidesPerView: Record<number, number>,
+) {
+  return Object.fromEntries(
+    Object.entries(slidesPerView).map(([bp, slides]) => [
+      bp,
+      {
+        slidesPerView: slides,
+        slidesPerGroup: slides,
+        grid: { rows, fill: "row" as const },
+      },
+    ]),
+  );
 }
 
 interface ProductCategoryCarouselProps {
@@ -45,6 +43,7 @@ interface ProductCategoryCarouselProps {
   categories: Product["category"][];
   rows?: number;
   cardHeight?: number;
+  slidesPerView?: Record<number, number>;
 }
 
 function ProductCategoryCarousel({
@@ -52,12 +51,16 @@ function ProductCategoryCarousel({
   categories,
   rows = 1,
   cardHeight = 340,
+  slidesPerView = DEFAULT_SLIDES_PER_VIEW,
 }: ProductCategoryCarouselProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const breakpoints = useMemo(() => getCarouselBreakpoints(rows), [rows]);
+  const breakpoints = useMemo(
+    () => getCarouselBreakpoints(rows, slidesPerView),
+    [rows, slidesPerView],
+  );
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -108,7 +111,10 @@ function ProductCategoryCarousel({
           {categoryTitle}
         </Typography>
 
-        <Box sx={{ width: 115, height: 3, bgcolor: "error.main", mt: 0.5 }} />
+        <Box sx={{ display: "flex", height: 3, mt: 0.5 }}>
+          <Box sx={{ width: 115, bgcolor: "error.main" }} />
+          <Box sx={{ flex: 1, bgcolor: "divider" }} />
+        </Box>
       </Box>
       {/* Products */}
       <Box
