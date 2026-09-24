@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { InputAdornment, TextField, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -14,9 +14,16 @@ function SearchBar({ initialValue = "" }: SearchBarProps) {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     const trimmed = query.trim();
-    if (!trimmed) navigate("/shop");
+    if (!trimmed) {
+      navigate("/shop");
+      return;
+    }
     navigate(`/shop?q=${encodeURIComponent(trimmed)}`);
   };
+
+  useEffect(() => {
+    setQuery(initialValue);
+  }, [initialValue]);
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>

@@ -65,7 +65,15 @@ function Header() {
               </Button>
             )}
           </Box>
-          <SearchBar />
+          <Box
+            sx={{
+              width: { xs: "100%", md: "60%" },
+              flex: { xs: "1 1 100%", md: "initial" },
+              order: { xs: 3, md: 0 },
+            }}
+          >
+            <SearchBar />
+          </Box>
           <Box
             sx={{
               display: { xs: "none", md: "flex" },
