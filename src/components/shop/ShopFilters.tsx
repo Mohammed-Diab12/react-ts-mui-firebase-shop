@@ -9,7 +9,9 @@ import {
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 import type { Product } from "../../types";
 
-export type SortOption = "price-asc" | "price-desc" | "title-asc";
+const SORT_OPTIONS = ["title-asc", "price-asc", "price-desc"] as const;
+
+export type SortOption = (typeof SORT_OPTIONS)[number];
 
 export interface ShopFiltersState {
   category: Product["category"] | "all";
@@ -28,11 +30,24 @@ const sortLabels: Record<SortOption, string> = {
   "price-desc": "Price: High to Low",
 };
 
+function isSortOption(value: string): value is SortOption {
+  return SORT_OPTIONS.some((option) => option === value);
+}
+
 export default function ShopFilters({
   categories,
   filters,
   onChange,
 }: ShopFiltersProps) {
+  const handleSortChange = (value: string) => {
+    if (!isSortOption(value)) {
+      console.warn(`Unknown sort option: ${value}`);
+      return;
+    }
+
+    onChange({ ...filters, sortBy: value });
+  };
+
   return (
     <Box
       sx={{
@@ -52,6 +67,7 @@ export default function ShopFilters({
           color={filters.category === "all" ? "primary" : "default"}
           variant={filters.category === "all" ? "filled" : "outlined"}
         />
+
         {categories.map((category) => (
           <Chip
             key={category}
@@ -68,9 +84,7 @@ export default function ShopFilters({
       <Select
         size="small"
         value={filters.sortBy}
-        onChange={(e) =>
-          onChange({ ...filters, sortBy: e.target.value as SortOption })
-        }
+        onChange={(e) => handleSortChange(e.target.value)}
         startAdornment={
           <InputAdornment position="start">
             <SwapVertIcon fontSize="small" color="action" />
@@ -78,7 +92,7 @@ export default function ShopFilters({
         }
         sx={{ minWidth: 200 }}
       >
-        {(Object.keys(sortLabels) as SortOption[]).map((key) => (
+        {SORT_OPTIONS.map((key) => (
           <MenuItem key={key} value={key}>
             {sortLabels[key]}
           </MenuItem>
