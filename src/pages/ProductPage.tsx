@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Alert, Box, CircularProgress, Container } from "@mui/material";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Container,
+  Rating,
+  Typography,
+} from "@mui/material";
 import { getProductById } from "../services/productService";
 import type { Product as ProductType } from "../types";
 import { ProductGallery } from "../components/product/ProductGallery";
@@ -17,6 +24,7 @@ function Product() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [reviewsRefreshKey, setReviewsRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!id) {
@@ -51,7 +59,11 @@ function Product() {
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  }, [id, reviewsRefreshKey]);
+
+  const handleReviewSubmitted = () => {
+    setReviewsRefreshKey((prev) => prev + 1);
+  };
 
   if (loading) {
     return (
@@ -92,6 +104,19 @@ function Product() {
         <Box sx={{ flex: 1, gap: 2, display: "flex", flexDirection: "column" }}>
           <ProductInfo product={product} />
 
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Rating
+              value={product.rating}
+              precision={0.1}
+              readOnly
+              size="small"
+            />
+            <Typography variant="body2" color="text.secondary">
+              {product.rating.toFixed(1)} ({product.ratingCount}{" "}
+              {product.ratingCount === 1 ? "review" : "reviews"})
+            </Typography>
+          </Box>
+
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, my: 2 }}>
             <QuantityStepper
               maxQuantity={product.stock}
@@ -107,7 +132,11 @@ function Product() {
       </Box>
 
       <Box sx={{ width: { xs: "100%", md: "70%" }, mx: "auto" }}>
-        <ProductTabs product={product} />
+        <ProductTabs
+          product={product}
+          onReviewSubmitted={handleReviewSubmitted}
+          reviewsRefreshKey={reviewsRefreshKey}
+        />
       </Box>
     </Container>
   );

@@ -6,13 +6,16 @@ import {
   query,
   where,
   addDoc,
+  runTransaction,
+  serverTimestamp,
   QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { Product } from "../types";
 
-const products_Collections = "products";
-const productsCollection = collection(db, products_Collections);
+const productsCollectionName = "products";
+const reviews_Collection = "reviews";
+const productsCollection = collection(db, productsCollectionName);
 
 const mapDocToProduct = (docSnap: QueryDocumentSnapshot): Product => {
   const data = docSnap.data();
@@ -27,6 +30,8 @@ const mapDocToProduct = (docSnap: QueryDocumentSnapshot): Product => {
     discountPercentage: data.discountPercentage,
     stock: data.stock,
     sku: data.sku,
+    rating: data.rating ?? 0,
+    ratingCount: data.ratingCount ?? 0,
   };
 };
 
@@ -62,7 +67,7 @@ export const getProductsByCategories = async (
 
 // Fetch a single product by id, or null if it doesn't exist
 export const getProductById = async (id: string): Promise<Product | null> => {
-  const productRef = doc(db, products_Collections, id);
+  const productRef = doc(db, productsCollectionName, id);
   const productSnap = await getDoc(productRef);
 
   if (!productSnap.exists()) {
@@ -76,4 +81,134 @@ export const createProduct = async (
 ): Promise<string> => {
   const docRef = await addDoc(productsCollection, product);
   return docRef.id;
+};
+
+// Add a new review and update the product's rating/ratingCount atomically
+export const addReviewAndUpdateRating = async (
+  productId: string,
+  userId: string,
+  review: { userName: string; rating: number; comment: string },
+): Promise<void> => {
+  const productRef = doc(db, productsCollectionName, productId);
+  const reviewRef = doc(
+    db,
+    productsCollectionName,
+    productId,
+    reviews_Collection,
+    userId,
+  );
+
+  await runTransaction(db, async (transaction) => {
+    const productSnap = await transaction.get(productRef);
+    if (!productSnap.exists()) {
+      throw new Error("Product not found");
+    }
+
+    const data = productSnap.data();
+    const currentRating = data.rating ?? 0;
+    const currentCount = data.ratingCount ?? 0;
+    const newCount = currentCount + 1;
+    const updatedRating =
+      (currentRating * currentCount + review.rating) / newCount;
+
+    transaction.set(reviewRef, {
+      userId,
+      userName: review.userName,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: serverTimestamp(),
+    });
+
+    transaction.update(productRef, {
+      rating: updatedRating,
+      ratingCount: newCount,
+    });
+  });
+};
+
+// Update an existing review and the product's rating atomically
+export const updateReviewAndRating = async (
+  productId: string,
+  userId: string,
+  oldRating: number,
+  review: { rating: number; comment: string },
+): Promise<void> => {
+  const productRef = doc(db, productsCollectionName, productId);
+  const reviewRef = doc(
+    db,
+    productsCollectionName,
+    productId,
+    reviews_Collection,
+    userId,
+  );
+
+  await runTransaction(db, async (transaction) => {
+    const productSnap = await transaction.get(productRef);
+    if (!productSnap.exists()) {
+      throw new Error("Product not found");
+    }
+
+    const data = productSnap.data();
+    const currentRating = data.rating ?? 0;
+    const currentCount = data.ratingCount ?? 0;
+
+    if (currentCount === 0) {
+      throw new Error("Cannot update rating: no existing reviews");
+    }
+
+    const updatedRating =
+      (currentRating * currentCount - oldRating + review.rating) / currentCount;
+
+    transaction.update(reviewRef, {
+      rating: review.rating,
+      comment: review.comment,
+    });
+
+    transaction.update(productRef, {
+      rating: updatedRating,
+    });
+  });
+};
+
+// Delete a review and update the product's rating/ratingCount atomically
+export const deleteReviewAndUpdateRating = async (
+  productId: string,
+  userId: string,
+  removedRating: number,
+): Promise<void> => {
+  const productRef = doc(db, productsCollectionName, productId);
+  const reviewRef = doc(
+    db,
+    productsCollectionName,
+    productId,
+    reviews_Collection,
+    userId,
+  );
+
+  await runTransaction(db, async (transaction) => {
+    const productSnap = await transaction.get(productRef);
+    if (!productSnap.exists()) {
+      throw new Error("Product not found");
+    }
+
+    const data = productSnap.data();
+    const currentRating = data.rating ?? 0;
+    const currentCount = data.ratingCount ?? 0;
+    const newCount = currentCount - 1;
+
+    transaction.delete(reviewRef);
+
+    if (newCount <= 0) {
+      transaction.update(productRef, { rating: 0, ratingCount: 0 });
+      return;
+    }
+
+    const updatedRating =
+      (currentRating * currentCount - removedRating) / newCount;
+
+    transaction.update(productRef, {
+      rating: updatedRating,
+      ratingCount: newCount,
+    });
+  });
 };
