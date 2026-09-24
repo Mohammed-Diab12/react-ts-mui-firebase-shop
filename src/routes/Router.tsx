@@ -8,6 +8,7 @@ import ComparePage from "../pages/ComparePage";
 import LoginPage from "../pages/LoginPage";
 import CreateProductPage from "../pages/CreateProductPage";
 import ProfilePage from "../pages/ProfilePage";
+import ShopPage from "../pages/ShopPage";
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <ProfilePage />,
+      },
+      {
+        path: "shop",
+        element: <ShopPage />,
       },
     ],
   },
