@@ -86,9 +86,7 @@ const CartSummaryBox = ({ summary }: CartSummaryBoxProps) => {
               wordSpacing: 2,
               width: { xs: "100%", sm: "70%", md: "80%" },
             }}
-            onClick={() => {
-              handleCheckout();
-            }}
+            onClick={handleCheckout}
           >
             GO TO CHECKOUT
           </Button>
@@ -105,9 +103,8 @@ const CartSummaryBox = ({ summary }: CartSummaryBoxProps) => {
       <Dialog
         open={open}
         onClose={handleClose}
-        aria-labelledby="Checkout Confirmation"
-        aria-describedby="Are you sure you want to proceed to make the order?"
-        role="alertdialog"
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
           {"Checkout Confirmation"}
