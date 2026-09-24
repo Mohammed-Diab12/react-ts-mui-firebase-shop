@@ -6,16 +6,13 @@ import {
   TextField,
   Button,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { useAuth } from "../../context/AuthContext";
+import { getUserReview } from "../../services/reviewService";
 import {
-  getUserReview,
-  addReview,
-  updateReview,
-} from "../../services/reviewService";
-import {
-  applyReviewAdded,
-  applyReviewUpdated,
+  addReviewAndUpdateRating,
+  updateReviewAndRating,
 } from "../../services/productService";
 
 interface ReviewFormProps {
@@ -33,21 +30,47 @@ export const ReviewForm = ({
   const [comment, setComment] = useState("");
   const [existingRating, setExistingRating] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingExisting, setLoadingExisting] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated || !user) return;
+    if (!isAuthenticated || !user) {
+      setLoadingExisting(false);
+      return;
+    }
+
+    let isMounted = true;
 
     const loadExistingReview = async () => {
-      const review = await getUserReview(productId, user.uid);
-      if (review) {
-        setRating(review.rating);
-        setComment(review.comment);
-        setExistingRating(review.rating);
+      setLoadingExisting(true);
+      setLoadError(null);
+      try {
+        const review = await getUserReview(productId, user.uid);
+        if (isMounted && review) {
+          setRating(review.rating);
+          setComment(review.comment);
+          setExistingRating(review.rating);
+        }
+      } catch (err) {
+        console.error("Failed to load existing review:", err);
+        if (isMounted) {
+          setLoadError(
+            "Couldn't load your existing review. You can still write a new one.",
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingExisting(false);
+        }
       }
     };
 
     loadExistingReview();
+
+    return () => {
+      isMounted = false;
+    };
   }, [productId, user, isAuthenticated]);
 
   const handleSubmit = async () => {
@@ -60,15 +83,16 @@ export const ReviewForm = ({
       const isUpdate = existingRating !== null;
 
       if (isUpdate) {
-        await updateReview(productId, user.uid, { rating, comment });
-        await applyReviewUpdated(productId, existingRating, rating);
+        await updateReviewAndRating(productId, user.uid, existingRating, {
+          rating,
+          comment,
+        });
       } else {
-        await addReview(productId, user.uid, {
+        await addReviewAndUpdateRating(productId, user.uid, {
           userName: user.displayName ?? "Anonymous",
           rating,
           comment,
         });
-        await applyReviewAdded(productId, rating);
       }
 
       setExistingRating(rating);
@@ -89,6 +113,14 @@ export const ReviewForm = ({
     );
   }
 
+  if (loadingExisting) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+        <CircularProgress size={20} />
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 480 }}
@@ -96,6 +128,8 @@ export const ReviewForm = ({
       <Typography variant="h6">
         {existingRating !== null ? "Update Your Review" : "Write a Review"}
       </Typography>
+
+      {loadError && <Alert severity="warning">{loadError}</Alert>}
 
       <Rating value={rating} onChange={(_, newValue) => setRating(newValue)} />
 

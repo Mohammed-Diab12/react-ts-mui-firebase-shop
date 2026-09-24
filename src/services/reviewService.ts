@@ -12,11 +12,11 @@ import {
 import { db } from "./firebase";
 import type { Review } from "../types";
 
-const products_Collections = "products";
-const reviews_Collection = "reviews";
+const productsCollectionName = "products";
+const reviewsCollectionName = "reviews";
 
 const reviewsCollection = (productId: string) =>
-  collection(db, products_Collections, productId, reviews_Collection);
+  collection(db, productsCollectionName, productId, reviewsCollectionName);
 
 const mapDocToReview = (docSnap: QueryDocumentSnapshot): Review => {
   const data = docSnap.data();
@@ -46,9 +46,9 @@ export const getUserReview = async (
 ): Promise<Review | null> => {
   const reviewRef = doc(
     db,
-    products_Collections,
+    productsCollectionName,
     productId,
-    reviews_Collection,
+    reviewsCollectionName,
     userId,
   );
   const reviewSnap = await getDoc(reviewRef);
@@ -67,9 +67,9 @@ export const addReview = async (
 ): Promise<void> => {
   const reviewRef = doc(
     db,
-    products_Collections,
+    productsCollectionName,
     productId,
-    reviews_Collection,
+    reviewsCollectionName,
     userId,
   );
   await setDoc(reviewRef, {
@@ -89,9 +89,9 @@ export const updateReview = async (
 ): Promise<void> => {
   const reviewRef = doc(
     db,
-    products_Collections,
+    productsCollectionName,
     productId,
-    reviews_Collection,
+    reviewsCollectionName,
     userId,
   );
   await setDoc(
@@ -111,9 +111,9 @@ export const deleteReview = async (
 ): Promise<void> => {
   const reviewRef = doc(
     db,
-    products_Collections,
+    productsCollectionName,
     productId,
-    reviews_Collection,
+    reviewsCollectionName,
     userId,
   );
   await deleteDoc(reviewRef);

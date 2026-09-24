@@ -6,11 +6,12 @@ import {
   Divider,
   IconButton,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { useAuth } from "../../context/AuthContext";
-import { getProductReviews, deleteReview } from "../../services/reviewService";
-import { applyReviewDeleted } from "../../services/productService";
+import { getProductReviews } from "../../services/reviewService";
+import { deleteReviewAndUpdateRating } from "../../services/productService";
 import type { Review } from "../../types";
 
 interface ProductReviewsProps {
@@ -27,6 +28,7 @@ export const ProductReviews = ({
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadReviews = async () => {
@@ -41,12 +43,14 @@ export const ProductReviews = ({
 
   const handleDelete = async (review: Review) => {
     setDeletingId(review.id);
+    setDeleteError(null);
+
     try {
-      await deleteReview(productId, review.id);
-      await applyReviewDeleted(productId, review.rating);
+      await deleteReviewAndUpdateRating(productId, review.id, review.rating);
       setReviews((prev) => prev.filter((r) => r.id !== review.id));
     } catch (err) {
       console.error("Failed to delete review:", err);
+      setDeleteError("Couldn't delete your review. Please try again.");
     } finally {
       setDeletingId(null);
     }
@@ -71,6 +75,8 @@ export const ProductReviews = ({
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Typography variant="h6">Customer Reviews</Typography>
+
+      {deleteError && <Alert severity="error">{deleteError}</Alert>}
 
       {reviews.map((review) => (
         <Box key={review.id}>
