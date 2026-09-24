@@ -7,6 +7,7 @@ import UserMenu from "./UserMenu";
 
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import SearchBar from "../SearchBar";
 
 function Header() {
   const navigate = useNavigate();
@@ -64,7 +65,15 @@ function Header() {
               </Button>
             )}
           </Box>
-
+          <Box
+            sx={{
+              width: { xs: "100%", md: "60%" },
+              flex: { xs: "1 1 100%", md: "initial" },
+              order: { xs: 3, md: 0 },
+            }}
+          >
+            <SearchBar />
+          </Box>
           <Box
             sx={{
               display: { xs: "none", md: "flex" },

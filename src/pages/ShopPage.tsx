@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Container, CircularProgress, Alert, Box } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
+import {
+  Container,
+  CircularProgress,
+  Alert,
+  Box,
+  Typography,
+} from "@mui/material";
 import ShopHeader from "../components/shop/ShopHeader";
 import ShopFilters from "../components/shop/ShopFilters";
 import type { ShopFiltersState } from "../components/shop/ShopFilters";
@@ -18,6 +25,9 @@ const categories: Product["category"][] = [
 const PRODUCTS_PER_PAGE = 12;
 
 export default function ShopPage() {
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q")?.trim() ?? "";
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,8 +45,17 @@ export default function ShopPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
+
   const filteredProducts = useMemo(() => {
     let result = products;
+
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter((p) => p.title.toLowerCase().includes(lowerQuery));
+    }
 
     if (filters.category !== "all") {
       result = result.filter((p) => p.category === filters.category);
@@ -54,7 +73,7 @@ export default function ShopPage() {
     });
 
     return result;
-  }, [products, filters]);
+  }, [products, filters, searchQuery]);
 
   const pageCount = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
 
@@ -80,6 +99,15 @@ export default function ShopPage() {
   return (
     <Container sx={{ py: 4 }}>
       <ShopHeader />
+
+      {searchQuery && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            Search results for <strong>&ldquo;{searchQuery}&rdquo;</strong>
+            {!loading && ` — ${filteredProducts.length} found`}
+          </Typography>
+        </Box>
+      )}
 
       <ShopFilters
         categories={categories}
