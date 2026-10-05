@@ -4,8 +4,9 @@ A full-featured e-commerce storefront built as a training project, implementing 
 
 **🔗 Live demo:** [camaro-ecommerce.surge.sh](https://camaro-ecommerce.surge.sh/)
 
-<!-- ![HomePage](/src/assets/HomePage.PNG)
-![HomePageDark](/src/assets/HomePageDark.PNG) -->
+![HomePage](./src/assets/HomePage.PNG)
+![HomePageDark](./src/assets/HomePageDark.PNG)
+![Laptop Section](./src/assets/Laptop.PNG)
 
 ## Features
 
@@ -20,18 +21,13 @@ A full-featured e-commerce storefront built as a training project, implementing 
 - 🌗 **Dark / light mode** — theme toggle with persisted preference; even the brand logo assets (Swatch, Yody) swap per theme
 - 📱 **Fully responsive** — mobile sidebar drawer navigation, sticky header, scroll-snap carousels, responsive grids throughout
 
-<!-- ADD IMAGE: Product detail page — gallery with thumbnail strip, title,
-     price with discount badge/strikethrough, star rating + review count,
-     quantity selector, Add to Cart, and the wishlist/compare icon buttons. -->
+![Product detail page](./src/assets/ProductDetails.PNG)
 
-<!-- ADD IMAGE: The Reviews tab on a product page — the review form plus a
-     couple of existing reviews listed below it. -->
+![The Reviews tab on a product page](./src/assets/Rating.PNG)
 
-<!-- ADD IMAGE: Shopping cart page — a few items, quantity steppers, and
-     the order summary box. -->
+![Shopping cart page](./src/assets/Cart.PNG)
 
-<!-- ADD IMAGE: Compare page — two or three products side by side in the
-     comparison table. -->
+![Compare page](./src/assets/ComparePage.PNG)
 
 ## Tech Stack
 
@@ -117,13 +113,14 @@ src/
 └── types.ts        # Shared TypeScript interfaces
 ```
 
-<!-- ADD IMAGE: Login page — the Google/GitHub sign-in card. -->
+![Login page](./src/assets/login.PNG)
+
+![Profile Page](./src/assets/ProfilePage.PNG)
 
 ## Authentication & Cart Behavior
 
 - Every visitor gets an **anonymous Firebase Auth session** automatically the first time they touch the cart, so guests can shop without creating an account.
 - Cart state is synced in real time to the signed-in user's `uid` — switching accounts updates the cart immediately, no refresh required.
-- **Note:** signing in currently switches to that account's own cart rather than merging in the anonymous session's items — items added before logging in are not currently carried over.
 
 ## Admin Access
 
@@ -131,10 +128,6 @@ Product creation (`/products/new`) is gated in two layers:
 
 1. **UI** — the page only shows the creation form to accounts found in the `admins` Firestore collection; anonymous and non-admin signed-in users see an appropriate blocked/sign-in message instead.
 2. **Firestore Security Rules** — writes to `products` are rejected server-side unless the requesting user's UID has a matching document in `admins`, so the restriction can't be bypassed by calling Firestore directly.
-
-## Checkout
-
-The cart's "Go to Checkout" flow is currently a **demo confirmation** (a dialog asking the user to confirm, followed by a success message) — it does not yet create a persisted order record.
 
 ## Deployment
 
@@ -147,5 +140,5 @@ surge dist
 
 ## Team
 
-- Mohammed Diab — [Mohammed Diab Github](https://github.com/Mohammed-Diab12)
-- Salsabeel Shomali — [Salsabeel Github](https://github.com/salsabeelshomali)
+- Mohammed Diab — [Github](https://github.com/Mohammed-Diab12)
+- Salsabeel Shomali — [Github](https://github.com/salsabeelshomali)
