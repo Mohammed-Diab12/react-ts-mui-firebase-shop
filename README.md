@@ -4,9 +4,14 @@ A full-featured e-commerce storefront built as a training project, implementing 
 
 **🔗 Live demo:** [camaro-ecommerce.surge.sh](https://camaro-ecommerce.surge.sh/)
 
-![HomePage](./src/assets/HomePage.PNG)
-![HomePageDark](./src/assets/HomePageDark.PNG)
-![Laptop Section](./src/assets/Laptop.PNG)
+![Homepage in light mode](./src/assets/HomePage.PNG)
+_Homepage — category carousels, promo banner, and brand strip (light mode)._
+
+![Homepage in dark mode](./src/assets/HomePageDark.PNG)
+_The same homepage in dark mode — theme toggle persists across sessions._
+
+![Laptop section, two-row grid carousel](./src/assets/Laptop.PNG)
+_The Laptop section uses a 2-row grid carousel instead of a single scrolling row._
 
 ## Features
 
@@ -21,13 +26,29 @@ A full-featured e-commerce storefront built as a training project, implementing 
 - 🌗 **Dark / light mode** — theme toggle with persisted preference; even the brand logo assets (Swatch, Yody) swap per theme
 - 📱 **Fully responsive** — mobile sidebar drawer navigation, sticky header, scroll-snap carousels, responsive grids throughout
 
+![Shop page in light mode](./src/assets/ProductsPage.PNG)
+_The Shop page — category chips, sort dropdown, and paginated results._
+
+![Shop page in dark mode](./src/assets/ProductsDarkMode.PNG)
+_The same Shop page in dark mode._
+
+![Searching for a product](./src/assets/searchFun.PNG)
+_Searching from the header navigates to `/shop?q=...`, filtering results by title._
+
 ![Product detail page](./src/assets/ProductDetails.PNG)
+_Product detail page — gallery, price with discount badge, rating, quantity selector, and wishlist/compare actions._
 
 ![The Reviews tab on a product page](./src/assets/Rating.PNG)
+_The Reviews tab — submit a rating and comment; the product's average rating updates automatically._
 
-![Shopping cart page](./src/assets/Cart.PNG)
+![Wishlist page](./src/assets/WishlistPage.PNG)
+_Saved products on the Wishlist page._
 
 ![Compare page](./src/assets/ComparePage.PNG)
+_Side-by-side product comparison across category, price, stock, SKU, and description._
+
+![Shopping cart page](./src/assets/Cart.PNG)
+_Cart page — quantity steppers and the order summary box._
 
 ## Tech Stack
 
@@ -114,8 +135,10 @@ src/
 ```
 
 ![Login page](./src/assets/login.PNG)
+_Login page — Google and GitHub sign-in._
 
-![Profile Page](./src/assets/ProfilePage.PNG)
+![Profile page](./src/assets/ProfilePage.PNG)
+_Profile page — shows the signed-in user's name, email, and sign-in provider._
 
 ## Authentication & Cart Behavior
 
@@ -129,6 +152,12 @@ Product creation (`/products/new`) is gated in two layers:
 1. **UI** — the page only shows the creation form to accounts found in the `admins` Firestore collection; anonymous and non-admin signed-in users see an appropriate blocked/sign-in message instead.
 2. **Firestore Security Rules** — writes to `products` are rejected server-side unless the requesting user's UID has a matching document in `admins`, so the restriction can't be bypassed by calling Firestore directly.
 
+![Access gate for non-admins](./src/assets/CreateProductAccess.PNG)
+_An authenticated but non-admin user sees a blocked message instead of the form._
+
+![Create product form](./src/assets/CreateProductForm.PNG)
+_Admins see the product-creation form after confirming they want to add a listing._
+
 ## Deployment
 
 The live demo is deployed via [Surge](https://surge.sh/):
@@ -140,5 +169,5 @@ surge dist
 
 ## Team
 
-- Mohammed Diab — [Github](https://github.com/Mohammed-Diab12)
-- Salsabeel Shomali — [Github](https://github.com/salsabeelshomali)
+- Mohammed Diab — [GitHub](https://github.com/Mohammed-Diab12)
+- Salsabeel Shomali — [GitHub](https://github.com/salsabeelshomali)
